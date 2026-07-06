@@ -267,7 +267,6 @@
             }
             setInterval(getHolyDays, 3000);
             //setInterval(checkAvailableHD, 3000);
-            ShowIM();
             Look4Cases();
             setInterval(actualizarRelojes, 1000);
             actualizarRelojes();
