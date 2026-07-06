@@ -461,9 +461,6 @@
             <button class="tab-btn active" id="tab2BNT" data-tab="tab2">SLA</button>
             <button class="tab-btn" id="tab4BNT" data-tab="tab4">Follow Up</button>
             <button class="tab-btn" data-tab="tab5">Closure</button>
-            <button class="tab-btn" data-tab="tab6">SAW Request</button>
-            <button class="tab-btn" data-tab="tab7">22 Days Note</button>
-            <button class="tab-btn" disabled="false" data-tab="tab8">IET</button>
         </div>
 
         <!--SLA-->
