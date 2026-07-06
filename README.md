@@ -105,16 +105,16 @@
             }
 
         </style>
-        <title>Intune Templates</title>        
         <link rel="stylesheet" href="style.css">
         <script>
             let createdHD = [];
             var templatesContent = {};
+            const dbURL = "https://templatesapi-awgkb6azg4a8dcdm.centralus-01.azurewebsites.net/auth";
             async function GetTemplates(tempID){
                 //const url = 'https://raw.githubusercontent.com/RSZ28/Templates_Content/refs/heads/main/Templates_Content.json';
 
                 try{
-                    const rsp = await fetch("https://templatesapi-awgkb6azg4a8dcdm.centralus-01.azurewebsites.net/list");
+                    const rsp = await fetch(dbURL);
                     if(!rsp.ok) throw new Error('Download Error');
 
                     const txt = await rsp.json();
@@ -157,7 +157,7 @@
             async function getHolyDays(){
 
                 try{
-                    const rsp = await fetch("https://templatesapi-awgkb6azg4a8dcdm.centralus-01.azurewebsites.net/list");
+                    const rsp = await fetch(dbURL);
                     if(!rsp.ok) throw new Error('Download Error');
 
                     const txt = await rsp.json();
@@ -276,10 +276,9 @@
     </head>    
     <body>
         <fieldset style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-            <h1>Intune QA Templates</h1>
+            <h1>Authentication QA Templates</h1>  
             <button onclick="window.open('https://forms.office.com/r/jXWnsVvRQQ','_blank','noopener,noreferrer')">Send Feedback</button>
-        </fieldset>
-        <h1>Intune QA Templates</h1>        
+        </fieldset>              
         <fieldset style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
             <legend><b>Time Zones</b></legend>
             <fieldset>
@@ -669,6 +668,12 @@
 
         <!--SLA-->
         <div id="tab2" class="tab-content active">
+
+            <div class="subtab-buttons">
+                <button class="subtab-btn" data-tab="eN" onclick="Stabilization(true)">Stabilization</button>
+                <button class="subtab-btn active" data-tab="paraf" onclick="Stabilization(false)">Regular SLA</button>
+            </div>            
+
             <script>
                 function ShowPHTypes(){
                     ShowPendingCX();
@@ -695,15 +700,12 @@
                 </div>
             </fieldset>
             
-            <fieldset id="eN" style="display: none;">
-                <legend>Extra Details</legend>
-                <div>
-                    Engineer name:
-                    <input type="text" id="eName">
-                </div>
+            <fieldset class="subtab-content" id="eN">
+                <legend>Engineer name:</legend>
+                <input type="text" id="eName" placeholder="Please enter your name and last name">
             </fieldset>
             
-            <fieldset>
+            <fieldset class="subtab-content active" id="paraf">
                 <legend>Case Parafrasing:</legend>
                 <input type="text" id="cDes" placeholder="Here goes a brief parafrasing" style="height: 25px; width: 400px;">
             </fieldset>
@@ -712,6 +714,12 @@
             </div>           
 
             <script>
+                let stab = false;
+                function Stabilization(val){
+                    stab = val;
+                    console.log(stab);
+                }
+
                 async function GenerateSLA(){
                     const slaType = document.querySelector('input[name="pcm"]:checked').value;
                     const phType = document.querySelector('input[name="phType"]:checked').value;
@@ -726,24 +734,35 @@
                     let template = "";
 
                     if(slaLanguage === "eng"){
-                        if(slaType === "email") template = await GetTemplates("SLA_EM_ENG");
-                        else if(slaType === "phone"){
-                            if(phType === "ph0") template = await GetTemplates("SLA_ANW_ENG");
-                            else if(phType === "ph1") template = await GetTemplates("SLA_LC_ENG");
-                            else if(phType === "ph2") template = await GetTemplates("SLA_NANW_ENG");
+                        if(stab){
+                            template = await GetTemplates("SLA_STL_ENG");
+                        }
+                        else{
+                            if(slaType === "email") template = await GetTemplates("SLA_EM_ENG");
+                            else if(slaType === "phone"){
+                                if(phType === "ph0") template = await GetTemplates("SLA_ANW_ENG");
+                                else if(phType === "ph1") template = await GetTemplates("SLA_LC_ENG");
+                                else if(phType === "ph2") template = await GetTemplates("SLA_NANW_ENG");
+                            }
                         }
                     }
                     else if(slaLanguage === "esp"){
-                        if(slaType === "email") template = await GetTemplates("SLA_EM_ESP");
-                        else if(slaType === "phone"){
-                            if(phType === "ph0") template = await GetTemplates("SLA_ANW_PH_ESP");
-                            else if(phType === "ph1") template = await GetTemplates("SLA_LC_PH_ESP");
-                            else if(phType === "ph2") template = await GetTemplates("SLA_NANW_PH_ESP");
+                        if(stab){
+
+                        }
+                        else{
+                            if(slaType === "email") template = await GetTemplates("SLA_EM_ESP");
+                            else if(slaType === "phone"){
+                                if(phType === "ph0") template = await GetTemplates("SLA_ANW_PH_ESP");
+                                else if(phType === "ph1") template = await GetTemplates("SLA_LC_PH_ESP");
+                                else if(phType === "ph2") template = await GetTemplates("SLA_NANW_PH_ESP");
+                            }
                         }
                     }
 
                     console.log("PCM "+slaType+"\nLanguage "+slaLanguage+"\nPHtype "+phType);
                     if(template.includes("NAME")) template = template.replace("NAME",cName);
+                    if(template.includes("ENAME")) template = template.replace("ENAME", eName);
                     if(template.includes("EM")) template = template.replace("EM", "<b>"+cEmail+"</b>");
                     if(template.includes("PH")) template = template = template.replace("PH","<b>" + cPhone +"</b>");
                     if(template.includes("TICKET")) template = template.replace("TICKET","<b>" + cNumber + "</b>");
@@ -796,6 +815,7 @@
                 <button class="subtab-btn" id="fAbutton" data-tab="fA" style="display: none;">SEV A</button>
                 <button class="subtab-btn" id="fButton" data-tab="f1" style="display: block;">Strike</button>
                 <button class="subtab-btn active" id="ospButton" data-tab="osp">OSP</button>
+                <button class="subtab-btn" id="stabButton" onclick="GenerateFollowUp(true)">Stabilization</button>
                 <button class="subtab-btn" id="fHD" style="display: none;" data-tab="f2">Holydays</button>
             </div>
 
@@ -1012,7 +1032,7 @@
                     document.getElementById("followUp").innerHTML = template.replace(/\n/g,"<br>");
                 }
 
-                async function GenerateFollowUp(){
+                async function GenerateFollowUp(stab=false){
                     const cName = document.getElementById("clientNameF").value;
                     const cNumber = document.getElementById("caseNumF").value;
                     const cPhone = document.getElementById("clientPhoneF").value;
@@ -1044,9 +1064,14 @@
 
 
                     if(slaLanguage === "eng"){
-                        if(strikeNum === "1") template = await GetTemplates("FU_S1_ENG");
-                        else if(strikeNum === "2") template = await GetTemplates("FU_S2_ENG");
-                        else if(strikeNum === "3") template = await GetTemplates("FU_S3_ENG");
+                        if(stab){
+                            template = await GetTemplates("FU_STL_ENG");
+                        }
+                        else{
+                            if(strikeNum === "1") template = await GetTemplates("FU_S1_ENG");
+                            else if(strikeNum === "2") template = await GetTemplates("FU_S2_ENG");
+                            else if(strikeNum === "3") template = await GetTemplates("FU_S3_ENG");
+                        }
                     }
                     else if(slaLanguage === "esp"){
                         if(strikeNum === "1") template = await GetTemplates("FU_S1_ESP");
@@ -1170,215 +1195,8 @@
             </fieldset>
         </div>        
 
-        <!--SAW Request-->
-        <div id="tab6" class="tab-content">
-            <fieldset>
-                <legend>Request Info</legend>
-                <div>
-                    <legend>Autopilot Device Upload Error</legend>
-                    <input id="808" type="radio" name="eType" value="808">
-                    <label for="808">808</label>
-                    <input id="806" type="radio" name="eType" value="806" checked="true">
-                    <label for="806">806</label>
-                    <legend>Device/s Serial Number/s(Multiple serials must be separated by comas)</legend>
-                    <input id="cSerial" type="text" placeholder="Here goes the device/s serial number/s">
-                    <legend>Is CSV file collected?<input id="cCSV" type="checkbox"></legend>
-                    <legend>Is proof of ownership collected?<input id="cOwn" type="checkbox"></legend>
-                    <legend>Customer Context ID:</legend>
-                    <input id="cContext" type="text" placeholder="ASIST365>APPLICATIONS>INTUNE>DATA>CONTEXT ID" style="width: 300pt;">
-                    <legend>Default Domain</legend>
-                    <input id="cDomain" type="text" placeholder="AKA Initial Domain">
-                    <div></div>
-                    <button id="req" onclick="CompleteRequest()">Generate Request</button>
-
-                    <script>
-                        function CompleteRequest(){
-                            const cError = document.querySelector('input[name="eType"]:checked').value;
-                            const cSerials = document.getElementById("cSerial").value;
-                            const cCSV = document.getElementById("cCSV").checked;
-                            const cOwn = document.getElementById("cOwn").checked;
-                            const cContext = document.getElementById("cContext").value;
-                            const cDomain = document.getElementById("cDomain").value;
-                            const cNumber = document.getElementById("caseNumF").value;
-                            let dev = cSerials.split('');
-                            let serials = [];
-                            let temp = [];
-                            let fxSerials = "";
-                            let lastC = 0;
-                            let cDev = 1;
-
-                            for(let i=0;i<dev.length;i++){
-                                if(dev[i] === ','){
-                                    serials.push(new String(temp.join('')));
-                                    temp.length = 0;
-                                    cDev++;
-                                }else{
-                                    temp.push(dev[i]);
-                                }
-                                
-                                if(i === dev.length-1){
-                                    serials.push(new String(temp.join('')));
-                                    temp.length = 0;
-                                }
-                            }
-
-                            for(let i=0;i<serials.length;i++){
-                                if(i != serials.length-1){
-                                    fxSerials += serials[i]+", ";
-                                }
-                                else{
-                                    fxSerials += serials[i];
-                                }
-                            }
-
-                            if(cSerials === ""){
-                                msgTemp = "<b>Add Serial Numbers</b>";
-                                noteTemp = "<b>Add Serial Numbers</b>";
-                                scope = "<b>Add Serial Numbers</b>";
-                            }
-                            else{
-
-                                if(cDev > 1){
-                                    noteTemp = "<ul>"+
-                                    "<li>Serial Numbers: "+fxSerials+"</li>"+
-                                    "<li>Is CSV file collected: "+(cCSV ? "Yes" : "No")+"</li>"+
-                                    "<li>Is proof of ownership collected: "+(cOwn ? "Yes" : "No")+"</li>"+
-                                    "<li>Results of Assist365 search: <b>HERE GOES THE RESULT</b></li>"+
-                                    "<li>Customer Context ID: "+cContext+"</li>"+
-                                    "<li>Default Domain: "+cDomain+"</li>"+
-                                    "<ul>\n\n<b>REMEMBER ADDING CAPTURES OF THE DEVICE SEARCH IN ASSIST365</b>\n\n";
-
-                                    if(cError === "808"){
-                                        scope = "<b>Issue:</b>\n"+
-                                        "The hardware hash of a device is unable to be uploaded to Intune for the Autopilot enrollment due to error 808, which indicates that the device is registered on another tenant.\n\n"+
-                                        "<b>Cause:</b>\n"+
-                                        "The error occurs because the device's hardware hash is already associated with a different tenant, preventing it from being uploaded to Intune for the Autopilot enrollment.\n\n"+
-                                        "<b>Solution:</b>\n\n"+
-                                        "The deregistration process was completed from our end and the device should be able to register to your company.\n\n"+
-                                        "<b>Scope Agreement:</b>\n"+
-                                        "We will consider the case as resolved and the case ready for closure once the devices "+fxSerials+" are successfully deregistered from the other tenant and you can enroll it to your organization. Alternatively, we will consider this case resolved if we confirm that the problem is caused by a third-party application or is by-design.\n\n";
-                                    }
-                                    else if(cError === "806"){
-                                        scope = "<b>Issue:</b>\n"+
-                                        "The hardware hash of a device is unable to be uploaded to Intune for the Autopilot enrollment due to error 806, which indicates that the device is already registered on your tenant.\n\n"+
-                                        "<b>Cause:</b>\n"+
-                                        "The error occurs because the device's hardware hash is already associated with your tenant, preventing it from being uploaded to Intune for the Autopilot enrollment.\n\n"+
-                                        "<b>Solution:</b>\n\n"+
-                                        "The deregistration process was completed from our end and the device should be able to register to your company.\n\n"+
-                                        "<b>Scope Agreement:</b>\n"+
-                                        "We will consider the case as resolved and the case ready for closure once the devices "+fxSerials+" are successfully deregistered from your tenant and you can enroll it to your organization. Alternatively, we will consider this case resolved if we confirm that the problem is caused by a third-party application or is by-design.\n\n";
-                                    }
-                                }
-                                else{
-                                    noteTemp = "<ul>"+
-                                    "<li>Serial Number: "+fxSerials+"</li>"+
-                                    "<li>Is CSV file collected: "+(cCSV ? "Yes" : "No")+"</li>"+
-                                    "<li>Is proof of ownership collected: "+(cOwn ? "Yes" : "No")+"</li>"+
-                                    "<li>Results of Assist365 search: <b>HERE GOES THE RESULT</b></li>"+
-                                    "<li>Customer Context ID: "+cContext+"</li>"+
-                                    "<li>Default Domain: "+cDomain+"</li>"+
-                                    "<ul>\n\n<b>REMEMBER ADDING CAPTURES OF THE DEVICE SEARCH IN ASSIST365</b>\n\n";
-
-                                    if(cError === "808"){
-                                        scope = "<b>Issue:</b>\n"+
-                                        "The hardware hash of a device is unable to be uploaded to Intune for the Autopilot enrollment due to error 808, which indicates that the device is registered on another tenant.\n\n"+
-                                        "<b>Cause:</b>\n"+
-                                        "The error occurs because the device's hardware hash is already associated with a different tenant, preventing it from being uploaded to Intune for the Autopilot enrollment.\n\n"+
-                                        "<b>Solution:</b>\n\n"+
-                                        "The deregistration process was completed from our end and the device should be able to register to your company.\n\n"+
-                                        "<b>Scope Agreement:</b>\n"+
-                                        "We will consider the case as resolved and the case ready for closure once the device "+fxSerials+" is successfully deregistered from the other tenant and you can enroll it to your organization. Alternatively, we will consider this case resolved if we confirm that the problem is caused by a third-party application or is by-design.\n\n";
-                                    }
-                                    else if(cError === "806"){
-                                        scope = "<b>Issue:</b>\n"+
-                                        "The hardware hash of a device is unable to be uploaded to Intune for the Autopilot enrollment due to error 806, which indicates that the device is already registered on your tenant.\n\n"+
-                                        "<b>Cause:</b>\n"+
-                                        "The error occurs because the device's hardware hash is already associated with your tenant, preventing it from being uploaded to Intune for the Autopilot enrollment.\n\n"+
-                                        "<b>Solution:</b>\n\n"+
-                                        "The deregistration process was completed from our end and the device should be able to register to your company.\n\n"+
-                                        "<b>Scope Agreement:</b>\n"+
-                                        "We will consider the case as resolved and the case ready for closure once the device "+fxSerials+" is successfully deregistered from your tenant and you can enroll it to your organization. Alternatively, we will consider this case resolved if we confirm that the problem is caused by a third-party application or is by-design.\n\n";
-                                    }
-                                }
-
-                                msgTemp = "Hello Team,\n\n"+
-                                "I have the following case ready to submit as a SAW request (Autopilot deregistration)\n\n"+
-                                "<b>"+cNumber+"</b>\n\n"+
-                                "Number of devices: "+cDev+"\n\n"+
-                                "Form is filled and notes complete.";
-                            }                            
-
-                            document.getElementById("scope").innerHTML = scope.replace(/\n/g,"<br>");
-                            document.getElementById("note").innerHTML = noteTemp.replace(/\n/g,"<br>");
-                            document.getElementById("msg").innerHTML = msgTemp.replace(/\n/g,"<br>");
-                        }
-                    </script>
-                </div>
-            </fieldset>        
-            <fieldset>
-                <legend>Scope Agreement</legend>
-                <div id="scope" contenteditable="false" style="border: 1px solid #ccc; padding: 10px;"></div>
-            </fieldset>
-            <fieldset>
-                <legend>Note Prompt</legend>
-                <div id="note" contenteditable="false" style="border: 1px solid #ccc; padding: 10px;"></div>
-            </fieldset>
-            <fieldset>
-                <legend>Group Message Prompt</legend>
-                <div id="msg" contenteditable="false" style="border: 1px solid #ccc; padding: 10px;"></div>
-            </fieldset>
-        </div>
-
-        <!--22 Days Note-->
-        <div id="tab7" class="tab-content">
-            <fieldset>
-                <legend><b>Case information</b></legend>
-                <div>
-                    Scope Agreement:<div></div>
-                    <textarea id="cScope" style="width: 400px; height: 150px;"></textarea><div></div>
-                    Business Impact:<div></div>
-                    <textarea id="cImpact" style="width: 400px; height: 150px;"></textarea><div></div>
-                    Observed Behavior:<div></div>
-                    <textarea id="cBehavior" style="width: 400px; height: 150px;"></textarea><div></div>
-                    Action Plan:<div></div>
-                    <textarea id="cAction" style="width: 400px; height: 150px;"></textarea>
-                </div>
-                <button onclick="OldCaseDaysNote()">Generate</button>
-            </fieldset>
-            <fieldset>
-                <div id="22days" contenteditable="false" style="border: 1px solid #ccc; padding: 10px;"></div>                
-            </fieldset>
-            <script>
-                function OldCaseDaysNote(){
-                    let scope = document.getElementById("cScope").value;
-                    let impact = document.getElementById("cImpact").value;
-                    let behavior = document.getElementById("cBehavior").value;
-                    let action = document.getElementById("cAction").value;
-
-
-                    template = "<b>Case Summary Note</b>\n"+
-                    "<ul>"+
-                        "<li>Case Number:</li>"+
-                            "<ul><li>"+cNumber.value+"</li></ul>"+
-                        "<li>Scope Agreement:</li>"+
-                            "<ul><li>"+scope+"</li></ul>"+
-                        "<li>Business Impact:</li>"+
-                            "<ul><li>"+impact+"</li></ul>"+
-                        "<li>Observed Behavior:</li>"+
-                            "<ul><li>"+behavior+"</li></ul>"+
-                        "<li>Relevant Screenshots:\n <b>REMEMBER INSERTING YOUR SCREENSHOTS</b></li>"+
-                        "<li>Action Plan:</li>"+
-                            "<ul><li>"+action+"</li></ul>"+
-                    "</ul>";
-
-                    document.getElementById("22days").innerHTML = template.replace(/\n/g,"<br>");
-                }
-            </script>
-
-        </div>
-
         <!--IET-->
-        <div id="tab8" class="tab-content">
+        <div id="tab8" class="tab-content" style="display: none;">
             <div>
                 <b>IET TEMPLATE | ASSISTANCE REQUEST | </b><input type="text" id="ietTitle" placeholder="Case Title">
             </div>
