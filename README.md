@@ -565,7 +565,7 @@
                     if(template.includes("TICKET")) template = template.replace("TICKET","<b>" + cNumber + "</b>");
                     if(template.includes("DESC")) template = template.replace("DESC", "<b>" + cDesc + "</b>");
 
-                    document.getElementById("premResult").innerHTML = template.replace(/\n/g,"<br>");
+                    document.getElementById("premResult").innerHTML = template;//.replace(/\n/g,"<br>");
                 }
             </script>
 
