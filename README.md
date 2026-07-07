@@ -129,8 +129,6 @@
                 } catch(error){
                     console.error('Error: ',error);
                 }
-
-                
             }
 
             function boldString(str , substr){
@@ -757,7 +755,7 @@
                     if(template.includes("DESC")) template = template.replace("DESC", "<b>" + cDes + "</b>");
 
 
-                    document.getElementById("followUp").innerHTML = template.replace(/\n/g,"<br>");
+                    document.getElementById("followUp").innerHTML = template;//.replace(/\n/g,"<br>");
 
                 }
 
@@ -809,7 +807,7 @@
                     if(template.includes("DESC")) template = template.replace("DESC", "<b>" + cDes + "</b>");
 
 
-                    document.getElementById("followUp").innerHTML = template.replace(/\n/g,"<br>");
+                    document.getElementById("followUp").innerHTML = template;//.replace(/\n/g,"<br>");
 
                 }
 
@@ -826,7 +824,7 @@
                     if(template.includes("TICKET")) template = template.replace("TICKET","<b>" + cNumber + "</b>");
                     //if(template.includes("DESC")) template = template.replace("DESC", "<b>" + cDes + "</b>");
 
-                    document.getElementById("followUp").innerHTML = template.replace(/\n/g,"<br>");
+                    document.getElementById("followUp").innerHTML = template;//.replace(/\n/g,"<br>");
                 }
 
                 async function GenerateFollowUp(stab=false){
@@ -882,7 +880,7 @@
                     if(template.includes("TICKET")) template = template.replace("TICKET","<b>" + cNumber + "</b>");
                     if(template.includes("DESC")) template = template.replace("DESC", "<b>" + cDes + "</b>");
                     
-                    document.getElementById("followUp").innerHTML = template.replace(/\n/g,"<br>");
+                    document.getElementById("followUp").innerHTML = template;//.replace(/\n/g,"<br>");
                 }
 
             </script>
