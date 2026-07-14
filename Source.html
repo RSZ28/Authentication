@@ -543,7 +543,7 @@
                     }
                     else if(slaLanguage === "esp"){
                         if(stab){
-
+                            template = await GetTemplates("SLA_STL_ESP");
                         }
                         else{
                             if(slaType === "email") template = await GetTemplates("SLA_EM_ESP");
@@ -708,6 +708,7 @@
                 <legend>Template Result</legend>
                 <div id="followUp"></div>
             </fieldset>
+
             <script>
                 
                 async function GenerateOSP(){
@@ -869,9 +870,14 @@
                         }
                     }
                     else if(slaLanguage === "esp"){
-                        if(strikeNum === "1") template = await GetTemplates("FU_S1_ESP");
-                        else if(strikeNum === "2") template = await GetTemplates("FU_S2_ESP");
-                        else if(strikeNum === "3") template = await GetTemplates("FU_S3_ESP");
+                        if(stab){
+                            template = await GetTemplates("FU_STL_ESP");
+                        }
+                        else{
+                            if(strikeNum === "1") template = await GetTemplates("FU_S1_ESP");
+                            else if(strikeNum === "2") template = await GetTemplates("FU_S2_ESP");
+                            else if(strikeNum === "3") template = await GetTemplates("FU_S3_ESP");
+                        }
                     }
 
                     if(template.includes("NAME")) template = template.replace("NAME",cName);
